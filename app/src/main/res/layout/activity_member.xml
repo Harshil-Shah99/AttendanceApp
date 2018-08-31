@@ -5,19 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MemberActivity">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+
     <EditText
-        android:layout_gravity="center"
+        android:id="@+id/membertoken"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/membertoken"
+        android:layout_gravity="center"
         android:hint="Enter password for attendance"
-        android:layout_marginTop="90dp"
-        android:layout_marginBottom="0dp"
-        android:inputType="textPassword"/>
+        android:inputType="textPassword"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="67dp" />
     <Button
         android:layout_gravity="center"
         android:layout_width="wrap_content"
@@ -26,6 +23,6 @@
         android:hint="Submit"
         android:layout_marginTop="90dp"
         android:layout_marginBottom="0dp"/>
-    </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>
