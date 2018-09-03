@@ -12,6 +12,7 @@ public class AdminHome2Activity extends AppCompatActivity {
     Button button4;
     Button button17;
     Button button18;
+    Button button5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +23,7 @@ public class AdminHome2Activity extends AppCompatActivity {
         button4=findViewById(R.id.button4);
         button17=findViewById(R.id.button17);
         button18=findViewById(R.id.button18);
+        button5=findViewById(R.id.button5);
 
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,6 +42,17 @@ public class AdminHome2Activity extends AppCompatActivity {
 
                 Intent intent = new Intent(AdminHome2Activity.this,
                         AdminNotifyActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
+        button5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(AdminHome2Activity.this,
+                        AdminStatsActivity.class);
                 startActivity(intent);
 
             }

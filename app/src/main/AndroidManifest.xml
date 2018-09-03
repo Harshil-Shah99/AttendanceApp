@@ -25,7 +25,6 @@
         <activity android:name=".AdminPagerActivity" />
         <activity android:name=".TokenActivity" />
         <activity android:name=".AdminLoginActivity" />
-        <activity android:name=".AdminHomeActivity" />
         <activity android:name=".ChangePasswordActivity" />
         <activity android:name=".AdminRoomActivity" />
         <activity android:name=".RoomCreationActivity" />
@@ -35,7 +34,8 @@
         <activity android:name=".MemberRoomActivity" />
         <activity android:name=".AddMemberActivity" />
         <activity android:name=".AdminHome2Activity" />
-        <activity android:name=".AdminStatsActivity"></activity>
+        <activity android:name=".AdminStatsActivity" />
+        <activity android:name=".CardViewActivity"></activity>
     </application>
 
 </manifest>
