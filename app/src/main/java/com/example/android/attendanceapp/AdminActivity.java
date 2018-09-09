@@ -143,7 +143,7 @@ public class AdminActivity extends AppCompatActivity {
 
                 Log.i(TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted.
+
                 getLastLocation();
             } else {
                 Intent intent = new Intent();
