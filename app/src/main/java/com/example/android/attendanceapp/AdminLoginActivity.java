@@ -6,31 +6,171 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
-
-import com.example.android.attendanceapp.api.AuthAPI;
-import com.example.android.attendanceapp.models.Info;
-import com.example.android.attendanceapp.models.LoginModel;
-import com.google.gson.Gson;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class AdminLoginActivity extends AppCompatActivity  {
 
+    /*private static final String TAG = MainActivity.class.getSimpleName();
+
+    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+
+
+    private FusedLocationProviderClient mFusedLocationClient;
+
+    protected Location mLastLocation;
+
+    JSONObject adminobject = new JSONObject();
+    JSONObject location = new JSONObject();
+    double lat,lng;
+    int i;
+
+
+    private Socket mSocket;
+    {
+        try {
+            mSocket = IO.socket("https://attendance-socket.herokuapp.com/");
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }*/
+
     EditText edtUsername;
     EditText edtPassword;
     Button btnLogin;
+/*
+    @Override
+    public void onStart() {
+        super.onStart();
 
+        if (!checkPermissions()) {
+            requestPermissions();
+        } else {
+            getLastLocation();
+        }
+    }
+
+
+    @SuppressWarnings("MissingPermission")
+    private void getLastLocation() {
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location!=null) {
+                            mLastLocation = location;
+
+                            lat = mLastLocation.getLatitude();
+                            lng = mLastLocation.getLongitude();
+
+
+                        } else {
+                            Toast.makeText(getApplicationContext(), "No last location found", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+
+
+
+
+
+    private boolean checkPermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void startLocationPermissionRequest() {
+        ActivityCompat.requestPermissions(AdminLoginActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                REQUEST_PERMISSIONS_REQUEST_CODE);
+    }
+
+    private void requestPermissions() {
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (shouldProvideRationale) {
+            Toast.makeText(getApplicationContext(), "rationale to be provided", Toast.LENGTH_SHORT).show();
+            startLocationPermissionRequest();
+
+        } else {
+            Log.i(TAG, "Requesting permission");
+
+            startLocationPermissionRequest();
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        Log.i(TAG, "onRequestPermissionResult");
+        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+            if (grantResults.length <= 0) {
+
+                Log.i(TAG, "User interaction was cancelled.");
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                getLastLocation();
+            } else {
+                Intent intent = new Intent();
+                intent.setAction(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package",
+                        BuildConfig.APPLICATION_ID, null);
+                intent.setData(uri);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+
+
+
+            }
+        }
+    }
+
+*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_login);
+/*
+        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
+        boolean enabled = service
+                .isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+
+        if (!enabled) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
+
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
+
+        }
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        try{
+            int lat2 = (int) Double.valueOf(lat).doubleValue();
+            int lng2 = (int) Double.valueOf(lng).doubleValue();
+
+            adminobject.put("org",edtUsername.getText().toString().trim());
+            adminobject.put("threshold",50);
+            location.put("lat",12345);
+            location.put("lng",12345);
+            adminobject.put("pos",location);
+            adminobject.put("token",1234);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+*/
+        //mSocket.emit("adminConnect",adminobject);
 
         edtUsername =  findViewById(R.id.edtUsername);
         edtPassword =  findViewById(R.id.edtPassword);
@@ -40,52 +180,16 @@ public class AdminLoginActivity extends AppCompatActivity  {
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
+
             public void onClick(View v) {
-                organisationLogin();
-            }
-        });
-    }
-
-
-    void organisationLogin(){
-
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(getResources().getString(R.string.base_url))
-                .addConverterFactory(GsonConverterFactory.create()).build();
-        AuthAPI authAPI = retrofit.create(AuthAPI.class);
-        Call<LoginModel> loginCall = authAPI.login(edtUsername.getText().toString(), edtPassword.getText().toString());
-
-        loginCall.enqueue(new Callback<LoginModel>() {
-            @Override
-            public void onResponse(Call<LoginModel> call, Response<LoginModel> response) {
-                String token = null;
-                String name;
-                try {
-                    token = response.body().getAccessToken();
-                    Info additionalInfo = response.body().getInfo();
-
-                    Gson gson = new Gson();
-                    String infoString = gson.toJson(additionalInfo);
-                    name = additionalInfo.getName().trim();
-
-                    Intent intent = new Intent(AdminLoginActivity.this, AdminHome2Activity.class);
-                    intent.putExtra("org",name);
-                    startActivity(intent);
-
-                } catch (NullPointerException e){
-                    e.printStackTrace();
-
-                    Toast.makeText(AdminLoginActivity.this, "Invalid Org ID / Password", Toast.LENGTH_SHORT).show();
-                }
-
-
-            }
-
-            @Override
-            public void onFailure(Call<LoginModel> call, Throwable t) {
-                Toast.makeText(AdminLoginActivity.this, "Failed", Toast.LENGTH_SHORT).show();
-
+                Intent intent = new Intent(AdminLoginActivity.this,
+                        AdminHome2Activity.class);
+                startActivity(intent);
 
             }
         });
     }
+
+
+
 }

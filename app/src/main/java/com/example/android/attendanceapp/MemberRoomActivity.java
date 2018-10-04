@@ -28,10 +28,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.Locale;
 
 public class MemberRoomActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+   private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
@@ -42,6 +43,7 @@ public class MemberRoomActivity extends AppCompatActivity {
 
 
     TextView orgName;
+    TextView textView11;
     TextView agenda;
     TextView attendance;
     double lat,lng;
@@ -62,18 +64,30 @@ public class MemberRoomActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     JSONObject data = (JSONObject) args[0];
+                    Boolean inRange;
                     JSONObject details;
-                    Boolean isconnected;
-                    try{
 
-                        isconnected = data.getBoolean("connected");
-                        details = data.getJSONObject("details");
-                        agenda.setText(details.toString());
-                        agenda.setVisibility(View.VISIBLE);
+                    try{
+                        if(data.getBoolean("connected")) {
+
+                            textView11.setVisibility(View.INVISIBLE);
+                            inRange = data.getBoolean("inRange");
+                            details = data.getJSONObject("details");
+                            if (inRange.equals(true)) {
+                                agenda.setText("Within Range");
+                            } else {
+                                agenda.setText("Out of Range");
+                            }
+                            orgName.setText(details.getString("org").toUpperCase());
+                            agenda.setVisibility(View.VISIBLE);
+                            orgName.setVisibility(View.VISIBLE);
+                        }
+                        else{
+                            Toast.makeText(getApplicationContext(), "Failed to connect to lobby", Toast.LENGTH_SHORT).show();
+                        }
                     }catch (JSONException e) {
-                        return;
+                        e.printStackTrace();
                     }
-                    Toast.makeText(getApplicationContext(), String.valueOf(isconnected), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -87,6 +101,66 @@ public class MemberRoomActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     Toast.makeText(getApplicationContext(), "Connection Error", Toast.LENGTH_SHORT).show();
+                    textView11.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onLobbyClosed = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            MemberRoomActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(), "Lobby closed by admin", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MemberRoomActivity.this,
+                            MemberLoginActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onNewMem = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            MemberRoomActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String reg;
+                    try{
+
+                        reg = data.getString("reg");
+                        Toast.makeText(getApplicationContext(), "New Member: "+reg, Toast.LENGTH_SHORT).show();
+
+                    }catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+        }
+    };
+
+    private Emitter.Listener onDis = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            MemberRoomActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String reg;
+                    try{
+
+                        reg = data.getString("reg");
+                        Toast.makeText(getApplicationContext(), "Member Disconnected: "+reg, Toast.LENGTH_SHORT).show();
+
+                    }catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                 }
             });
         }
@@ -114,6 +188,8 @@ public class MemberRoomActivity extends AppCompatActivity {
 
                             lat = mLastLocation.getLatitude();
                             lng = mLastLocation.getLongitude();
+                            attendance.setText(String.format(Locale.ENGLISH,"lat: %f, lng: %f",lat,lng));
+                            attendance.setVisibility(View.VISIBLE);
                         } else {
                             Toast.makeText(getApplicationContext(), "No last location found", Toast.LENGTH_SHORT).show();
                         }
@@ -159,7 +235,7 @@ public class MemberRoomActivity extends AppCompatActivity {
 
                 Log.i(TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted.
+
                 getLastLocation();
             } else {
                 Intent intent = new Intent();
@@ -201,20 +277,18 @@ public class MemberRoomActivity extends AppCompatActivity {
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        Intent intent = getIntent();
-        String[] creds = intent.getStringArrayExtra("creds");
 
-        mSocket.on("connectionErr",onConnectionError).on("status",onStatus);
+        mSocket.on("connectionErr",onConnectionError).on("status",onStatus).on("newMem",onNewMem).on("userDis",onDis).on("lobbyClosed",onLobbyClosed);
         mSocket.connect();
 
         JSONObject memcon = new JSONObject();
         JSONObject location = new JSONObject();
 
         try {
-            memcon.put("org",creds[0]);
-            memcon.put("reg",creds[1]);
-            location.put("lat",lat);
-            location.put("lng",lng);
+            memcon.put("org","acm");
+            memcon.put("reg","17BCE2411");
+            location.put("lat",12345);
+            location.put("lng",12345);
             memcon.put("pos",location);
 
         }catch(JSONException e){
@@ -224,8 +298,9 @@ public class MemberRoomActivity extends AppCompatActivity {
 
         agenda = findViewById(R.id.textView7);
         attendance = findViewById(R.id.textView8);
+        textView11 = findViewById(R.id.textView11);
 
-        orgName.setText(creds[0]);
+
         mSocket.emit("memConnect",memcon);
         mSocket.emit("status");
 
